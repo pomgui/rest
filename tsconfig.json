@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "lib": [ "es2018" ],
+    "strict": true
+  }
+}

@@ -1,0 +1,5 @@
+node_modules
+index.ts
+lib
+tsconfig.json
+dist/spec
