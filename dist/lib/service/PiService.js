@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
+var pirest_lib_1 = require("pirest-lib");
 var _router = express_1.Router(), _dbFactoryFn;
 function PiGET(path, options) { return decorator(path, _router.get, options); }
 exports.PiGET = PiGET;
@@ -19,9 +20,10 @@ function decorator(path, defineRoute, options) {
         var operation = function (req, res) {
             var db = (_dbFactoryFn && options.database) ? _dbFactoryFn() : null;
             var result;
+            var desc = options.descriptor && (options.descriptor.o || (options.descriptor.o = new pirest_lib_1.PiTypeDescriptor(options.descriptor)));
             return Promise.resolve()
                 .then(function () { return db && db.beginTransaction(); })
-                .then(function () { return orig.call(target, normalizeQueryParams(req, options.descriptor), { db: db, req: req, res: res }); })
+                .then(function () { return orig.call(target, normalizeQueryParams(req, desc), { db: db, req: req, res: res }); })
                 .then(function (r) { return result = r; })
                 .then(function () { return db && db.commit(); })
                 .then(function () { return options.customSend || res.send(result); })

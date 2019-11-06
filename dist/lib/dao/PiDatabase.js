@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var piservices_common_1 = require("piservices-common");
+var pirest_lib_1 = require("pirest-lib");
 var PiDatabase = /** @class */ (function () {
     function PiDatabase() {
     }
@@ -15,9 +15,9 @@ var PiDatabase = /** @class */ (function () {
         return this.query(sql, params, options)
             .then(function (list) {
             if (!list.length)
-                throw new piservices_common_1.PiRestError('Not found', 404);
+                throw new pirest_lib_1.PiRestError('Not found', 404);
             if (list.length != 1)
-                throw new piservices_common_1.PiRestError('Too many rows', 406);
+                throw new pirest_lib_1.PiRestError('Too many rows', 406);
             return list[0];
         });
     };

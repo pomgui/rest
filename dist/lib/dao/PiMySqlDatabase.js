@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
 var mysql = require("mysql");
 var PiDatabase_1 = require("./PiDatabase");
-var piservices_common_1 = require("piservices-common");
+var pirest_lib_1 = require("pirest-lib");
 var PiMySqlDatabase = /** @class */ (function (_super) {
     tslib_1.__extends(PiMySqlDatabase, _super);
     function PiMySqlDatabase(connectionUri) {
@@ -41,7 +41,7 @@ var PiMySqlDatabase = /** @class */ (function (_super) {
             // Execute query
             _this._conn.query(sql, [], function (err, results, fields) {
                 if (err)
-                    reject(new piservices_common_1.PiRestError(err));
+                    reject(new pirest_lib_1.PiRestError(err));
                 else {
                     if (results[1] && "affectedRows" in results[1])
                         // work around when it's a CALL and not a SELECT
@@ -69,7 +69,7 @@ var PiMySqlDatabase = /** @class */ (function (_super) {
             console.debug('SQL> ', sql.replace(/\s+/g, ' '));
             _this._conn.query(sql, params, function (err, results, fields) {
                 if (err)
-                    reject(new piservices_common_1.PiRestError(err));
+                    reject(new pirest_lib_1.PiRestError(err));
                 else {
                     if (results.affectedRows == 1)
                         resolve(results.insertId);
@@ -89,7 +89,7 @@ var PiMySqlDatabase = /** @class */ (function (_super) {
             console.debug('SQL> ', sql.replace(/\s+/g, ' '));
             _this._conn.query(sql, params, function (err, results, fields) {
                 if (err)
-                    reject(new piservices_common_1.PiRestError(err));
+                    reject(new pirest_lib_1.PiRestError(err));
                 else
                     resolve(results.affectedRows);
             });

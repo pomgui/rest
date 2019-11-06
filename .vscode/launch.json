@@ -15,19 +15,6 @@
             "sourceMaps": true,
             "runtimeArgs": ["-r", "ts-node/register"],
             "internalConsoleOptions": "openOnSessionStart"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "openapi",
-            "protocol": "inspector",
-            "args": ["/pi/piservices-openapi/lib/openapi.ts", "-p", "/tmp/out", "-e", 
-                "/pi/pilines/docs/examples/pet_example.yaml"],
-                // "/pi/pimoney/swagger/pimoney.swagger.yaml"],
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": [ "-r", "ts-node/register" ],
-            "internalConsoleOptions": "openOnSessionStart",
-            "env": {"TZ": "UTC+0"}
         }
     ]
 }

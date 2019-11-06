@@ -1,4 +1,4 @@
-import { PiRestError } from "piservices-common";
+import { PiRestError } from "pirest-lib";
 
 export type Options = {
     // Normally all the columns will be converted to camel-case form. Ex: 'AUTO_UPDATE' will renamed to 'autoUpdate'.

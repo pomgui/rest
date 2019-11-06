@@ -1,6 +1,6 @@
 import { PiDatabase } from "../dao/PiDatabase"
 import { Request, Response } from "express"
-import { PiTypeDescriptor } from "piservices-common";
+import { PiDescriptor } from 'pirest-lib'
 
 /**
  * Signature of the database factory function 
@@ -10,7 +10,7 @@ export type PiDbFactoryFn = { (): PiDatabase | null; }
 export type PiServiceOptions = {
     customSend?: boolean;
     database?: boolean;
-    descriptor?: PiTypeDescriptor,
+    descriptor?: PiDescriptor,
     errorHandler?: PiExceptionHandler;
 }
 

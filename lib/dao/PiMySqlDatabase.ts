@@ -1,6 +1,6 @@
 import * as mysql from "mysql";
 import { PiDatabase, Options } from "./PiDatabase";
-import { PiRestError } from "piservices-common";
+import { PiRestError } from "pirest-lib";
 
 export class PiMySqlDatabase extends PiDatabase {
     private _conn: mysql.Connection;

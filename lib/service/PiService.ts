@@ -1,7 +1,7 @@
 import { Request, Response, Router, IRouterMatcher, Application } from "express";
 import { PiDatabase } from "../dao/PiDatabase";
 import { PiDbFactoryFn, PiServiceOptions, PiExceptionHandlerParams, PiExtraParams } from "./types";
-import { PiTypeDescriptor } from 'piservices-common';
+import { PiTypeDescriptor } from 'pirest-lib';
 
 var
     _router: Router = Router(),
@@ -20,9 +20,10 @@ function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: Pi
         let operation = (req: Request, res: Response): Promise<any> => {
             let db = (_dbFactoryFn && options!.database) ? _dbFactoryFn() : null;
             let result: any;
+            let desc = options!.descriptor && (options!.descriptor.o || (options!.descriptor.o = new PiTypeDescriptor(options!.descriptor)));
             return Promise.resolve()
                 .then(() => db && db.beginTransaction())
-                .then(() => orig.call(target, normalizeQueryParams(req, options!.descriptor), { db, req, res }))
+                .then(() => orig.call(target, normalizeQueryParams(req, desc), { db, req, res }))
                 .then(r => result = r)
                 .then(() => db && db.commit())
                 .then(() => options!.customSend || res.send(result))

@@ -1,4 +1,4 @@
-import { PiTypeDescriptor, PiFieldDescriptor, PiRestError } from "piservices-common";
+import { PiTypeDescriptor, PiFieldDescriptor, PiRestError, PiField, PiJstype, PiDescriptor } from "pirest-lib";
 import { PiGET, PiPOST, PiPUT, PiPATCH, PiDELETE, PiService } from '../../lib/service/PiService';
 import * as express from 'express';
 import * as request from 'supertest';
@@ -17,11 +17,12 @@ interface Person {
     status: Status[];
 }
 
-const person$ = new PiTypeDescriptor([
-    new PiFieldDescriptor('name', 'string', true),
-    new PiFieldDescriptor('single', 'boolean', false),
-    new PiFieldDescriptor('status', 'enum[]', false, ['active', 'inactive'])
-])
+const person$: PiDescriptor =
+    new PiTypeDescriptor([
+        new PiFieldDescriptor(F('name', 'string', true)),
+        new PiFieldDescriptor(F('single', 'boolean', false)),
+        new PiFieldDescriptor(F('status', 'enum', false, true, ['active', 'inactive']))
+    ]).render();
 
 class TestApi1 {
     @PiGET('/persons', { descriptor: person$ })
@@ -110,3 +111,7 @@ describe('PiService With fake database ', () => {
             })
     })
 })
+
+function F(name: string, jsType: PiJstype, required: boolean, isArray?: boolean, values?: string[]): PiField {
+    return { name, jsType, required, isArray, values };
+}

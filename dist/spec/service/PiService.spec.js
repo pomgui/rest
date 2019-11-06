@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
-var piservices_common_1 = require("piservices-common");
+var pirest_lib_1 = require("pirest-lib");
 var PiService_1 = require("../../lib/service/PiService");
 var express = require("express");
 var request = require("supertest");
@@ -15,11 +15,11 @@ var PiFakeDb = /** @class */ (function (_super) {
     ;
     return PiFakeDb;
 }(PiNoopDatabase_1.PiNoopDatabase));
-var person$ = new piservices_common_1.PiTypeDescriptor([
-    new piservices_common_1.PiFieldDescriptor('name', 'string', true),
-    new piservices_common_1.PiFieldDescriptor('single', 'boolean', false),
-    new piservices_common_1.PiFieldDescriptor('status', 'enum[]', false, ['active', 'inactive'])
-]);
+var person$ = new pirest_lib_1.PiTypeDescriptor([
+    new pirest_lib_1.PiFieldDescriptor(F('name', 'string', true)),
+    new pirest_lib_1.PiFieldDescriptor(F('single', 'boolean', false)),
+    new pirest_lib_1.PiFieldDescriptor(F('status', 'enum', false, true, ['active', 'inactive']))
+]).render();
 var TestApi1 = /** @class */ (function () {
     function TestApi1() {
     }
@@ -149,4 +149,7 @@ describe('PiService With fake database ', function () {
         });
     });
 });
+function F(name, jsType, required, isArray, values) {
+    return { name: name, jsType: jsType, required: required, isArray: isArray, values: values };
+}
 //# sourceMappingURL=PiService.spec.js.map
