@@ -1,4 +1,4 @@
-import { PiDatabase } from "../dao/PiDatabase"
+import { PiDatabase } from "pidatabase"
 import { Request, Response } from "express"
 import { PiDescriptor } from 'pirest-lib'
 

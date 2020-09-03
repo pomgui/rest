@@ -2,7 +2,7 @@ import { PiTypeDescriptor, PiFieldDescriptor, PiField, PiJstype, PiDescriptor } 
 import { PiGET, PiPOST, PiPUT, PiPATCH, PiDELETE, PiService } from '../../lib/service/PiService';
 import * as express from 'express';
 import * as request from 'supertest';
-import { PiNoopDatabase } from '../../lib/dao/PiNoopDatabase';
+import { PiNoopDatabase } from 'pidatabase';
 
 class PiFakeDb extends PiNoopDatabase {
     close() { return Promise.reject('error on close database') };

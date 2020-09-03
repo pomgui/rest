@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var express_1 = require("express");
-var pirest_lib_1 = require("pirest-lib");
+const express_1 = require("express");
+const pirest_lib_1 = require("pirest-lib");
 var _router = express_1.Router(), _dbFactoryFn;
 function PiGET(path, options) { return decorator(path, _router.get, options); }
 exports.PiGET = PiGET;
@@ -16,20 +16,20 @@ exports.PiDELETE = PiDELETE;
 function decorator(path, defineRoute, options) {
     options = Object.assign({ database: true, errorHandler: defaultErrorHandler }, options);
     return function (target, propertyKey, descriptor) {
-        var orig = descriptor.value;
-        var operation = function (req, res) {
-            var db = (_dbFactoryFn && options.database) ? _dbFactoryFn() : null;
-            var result;
-            var desc = options.descriptor && (options.descriptor.o || (options.descriptor.o = new pirest_lib_1.PiTypeDescriptor(options.descriptor)));
+        let orig = descriptor.value;
+        let operation = (req, res) => {
+            let db = (_dbFactoryFn && options.database) ? _dbFactoryFn() : null;
+            let result;
+            let desc = options.descriptor && (options.descriptor.o || (options.descriptor.o = new pirest_lib_1.PiTypeDescriptor(options.descriptor)));
             return Promise.resolve()
-                .then(function () { return db && db.beginTransaction(); })
-                .then(function () { return orig.call(target, normalizeQueryParams(req, desc), { db: db, req: req, res: res }); })
-                .then(function (r) { return result = r; })
-                .then(function () { return db && db.commit(); })
-                .then(function () { return options.customSend || res.send(result); })
-                .catch(function (error) { return options.errorHandler({ db: db, req: req, res: res, error: error }); })
-                .finally(function () { return db && db.close(); })
-                .catch(function (error) { return options.errorHandler({ db: null, req: req, res: res, error: error }); });
+                .then(() => db && db.beginTransaction())
+                .then(() => orig.call(target, normalizeQueryParams(req, desc), { db, req, res }))
+                .then(r => result = r)
+                .then(() => db && db.commit())
+                .then(() => options.customSend || res.send(result))
+                .catch(error => options.errorHandler({ db, req, res, error }))
+                .finally(() => db && db.close())
+                .catch(error => options.errorHandler({ db: null, req, res, error }));
         };
         defineRoute.call(_router, path, operation);
     };
@@ -41,7 +41,7 @@ function decorator(path, defineRoute, options) {
         return options.db ? options.db.rollback() : Promise.resolve();
     }
     function normalizeQueryParams(req, desc) {
-        var params = {
+        let params = {
             path: Object.assign({}, req.params),
             query: Object.assign({}, req.query),
             headers: Object.assign({}, req.headers),
@@ -49,10 +49,10 @@ function decorator(path, defineRoute, options) {
         };
         if (desc)
             desc.cast(params);
-        var ret = Object.assign({}, params.path, params.query, params.body);
+        let ret = Object.assign({}, params.path, params.query, params.body);
         if (desc)
             // Only the defined headers in the descriptor
-            Object.keys(params.headers).filter(function (h) { return desc.has(h); }).forEach(function (h) { return ret[h] = params.headers[h]; });
+            Object.keys(params.headers).filter(h => desc.has(h)).forEach(h => ret[h] = params.headers[h]);
         else
             Object.assign(ret, params.headers);
         return ret;
@@ -60,7 +60,7 @@ function decorator(path, defineRoute, options) {
     function plain(err) {
         if (Array.isArray(err) || typeof err != 'object')
             return err;
-        var plainObj = {};
+        let plainObj = {};
         if (err.message)
             plainObj.message = err.message;
         if (err.data)
@@ -69,7 +69,7 @@ function decorator(path, defineRoute, options) {
     }
 }
 function PiService(config) {
-    config.services.forEach(function (s) { return new s(); }); // Create an instance, just to access to the decorators
+    config.services.forEach(s => new s()); // Create an instance, just to access to the decorators
     _dbFactoryFn = config.dbFactoryFn;
     return _router;
 }
