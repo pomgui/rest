@@ -1,5 +1,5 @@
 {
-  "name": "pirest",
+  "name": "@pomgui/rest",
   "version": "0.1.0",
   "description": "Library to implement REST services in typescript using decorators",
   "main": "dist/index.js",
@@ -13,8 +13,8 @@
   "author": "Wilfredo <wpomier@pomgui.com> (https://github.com/pomgui)",
   "license": "MIT",
   "dependencies": {
-    "pirest-lib": "github:pomgui/pirest-lib",
-    "pidatabase": "github:pomgui/pidatabase"
+    "@pomgui/database": "github:pomgui/database",
+    "@pomgui/rest-lib": "github:pomgui/rest-lib"
   },
   "devDependencies": {
     "@types/express": "^4.17.1",
@@ -28,7 +28,8 @@
     "supertest": "^4.0.2",
     "ts-node": "^8.4.1",
     "tslib": "^1.10.0",
-    "typescript": "^3.6.3"
+    "typescript": "^3.6.3",
+    "@types/mysql": "^2.15.15"
   },
   "peerDependencies": {
     "express": "^4.17.1"
@@ -38,6 +39,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pomgui/pirest.git"
+    "url": "https://github.com/pomgui/rest.git"
   }
 }

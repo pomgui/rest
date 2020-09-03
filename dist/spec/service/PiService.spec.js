@@ -1,19 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const pirest_lib_1 = require("pirest-lib");
+const rest_lib_1 = require("@pomgui/rest-lib");
 const PiService_1 = require("../../lib/service/PiService");
 const express = require("express");
 const request = require("supertest");
-const pidatabase_1 = require("pidatabase");
-class PiFakeDb extends pidatabase_1.PiNoopDatabase {
+const database_1 = require("@pomgui/database");
+class PiFakeDb extends database_1.PiNoopDatabase {
     close() { return Promise.reject('error on close database'); }
     ;
 }
-const person$ = new pirest_lib_1.PiTypeDescriptor([
-    new pirest_lib_1.PiFieldDescriptor(F('name', 'string', true)),
-    new pirest_lib_1.PiFieldDescriptor(F('single', 'boolean', false)),
-    new pirest_lib_1.PiFieldDescriptor(F('status', 'enum', false, true, ['active', 'inactive']))
+const person$ = new rest_lib_1.PiTypeDescriptor([
+    new rest_lib_1.PiFieldDescriptor(F('name', 'string', true)),
+    new rest_lib_1.PiFieldDescriptor(F('single', 'boolean', false)),
+    new rest_lib_1.PiFieldDescriptor(F('status', 'enum', false, true, ['active', 'inactive']))
 ]).render();
 class TestApi1 {
     async getPersons(params) {

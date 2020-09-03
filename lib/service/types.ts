@@ -1,6 +1,6 @@
-import { PiDatabase } from "pidatabase"
+import { PiDatabase } from "@pomgui/database"
 import { Request, Response } from "express"
-import { PiDescriptor } from 'pirest-lib'
+import { PiDescriptor } from '@pomgui/rest-lib'
 
 /**
  * Signature of the database factory function 

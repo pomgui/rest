@@ -1,8 +1,8 @@
-import { PiTypeDescriptor, PiFieldDescriptor, PiField, PiJstype, PiDescriptor } from "pirest-lib";
+import { PiTypeDescriptor, PiFieldDescriptor, PiField, PiJstype, PiDescriptor } from "@pomgui/rest-lib";
 import { PiGET, PiPOST, PiPUT, PiPATCH, PiDELETE, PiService } from '../../lib/service/PiService';
 import * as express from 'express';
 import * as request from 'supertest';
-import { PiNoopDatabase } from 'pidatabase';
+import { PiNoopDatabase } from '@pomgui/database';
 
 class PiFakeDb extends PiNoopDatabase {
     close() { return Promise.reject('error on close database') };

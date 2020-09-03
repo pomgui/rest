@@ -1,6 +1,6 @@
 import { Request, Response, Router, IRouterMatcher, Application } from "express";
 import { PiDbFactoryFn, PiServiceOptions, PiExceptionHandlerParams, PiExtraParams } from "./types";
-import { PiTypeDescriptor } from 'pirest-lib';
+import { PiTypeDescriptor } from '@pomgui/rest-lib';
 
 var
     _router: Router = Router(),

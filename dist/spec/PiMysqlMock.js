@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PiMysqlMock = exports.PiMysqlConnectionMock = exports.PiAction = void 0;
 require("sqlstring");
 const SqlString = require('sqlstring'), mysql = require('mysql');
 class PiAction {

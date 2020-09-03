@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PiService = exports.PiDELETE = exports.PiPATCH = exports.PiPUT = exports.PiPOST = exports.PiGET = void 0;
 const express_1 = require("express");
-const pirest_lib_1 = require("pirest-lib");
+const rest_lib_1 = require("@pomgui/rest-lib");
 var _router = express_1.Router(), _dbFactoryFn;
 function PiGET(path, options) { return decorator(path, _router.get, options); }
 exports.PiGET = PiGET;
@@ -20,7 +21,7 @@ function decorator(path, defineRoute, options) {
         let operation = (req, res) => {
             let db = (_dbFactoryFn && options.database) ? _dbFactoryFn() : null;
             let result;
-            let desc = options.descriptor && (options.descriptor.o || (options.descriptor.o = new pirest_lib_1.PiTypeDescriptor(options.descriptor)));
+            let desc = options.descriptor && (options.descriptor.o || (options.descriptor.o = new rest_lib_1.PiTypeDescriptor(options.descriptor)));
             return Promise.resolve()
                 .then(() => db && db.beginTransaction())
                 .then(() => orig.call(target, normalizeQueryParams(req, desc), { db, req, res }))
