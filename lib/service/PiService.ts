@@ -1,5 +1,4 @@
 import { Request, Response, Router, IRouterMatcher, Application } from "express";
-import { PiDatabase } from "../dao/PiDatabase";
 import { PiDbFactoryFn, PiServiceOptions, PiExceptionHandlerParams, PiExtraParams } from "./types";
 import { PiTypeDescriptor } from 'pirest-lib';
 

@@ -1,4 +1,4 @@
-import { PiTypeDescriptor, PiFieldDescriptor, PiRestError, PiField, PiJstype, PiDescriptor } from "pirest-lib";
+import { PiTypeDescriptor, PiFieldDescriptor, PiField, PiJstype, PiDescriptor } from "pirest-lib";
 import { PiGET, PiPOST, PiPUT, PiPATCH, PiDELETE, PiService } from '../../lib/service/PiService';
 import * as express from 'express';
 import * as request from 'supertest';

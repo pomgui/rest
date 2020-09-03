@@ -1,15 +1,15 @@
-# PiServices
+# Pi Rest Services
 
-PiServices is a typescript library that makes it easier to create a node REST server using 
+Pirest is a typescript library that makes it easier to create a node REST server using 
 [decorators](https://www.typescriptlang.org/docs/handbook/decorators.html) to improve the 
 reading and writing of REST services source code.
 
 ## Installation
 
-Use npm to install piservices.
+Use npm to install pirest.
 
 ```bash
-npm install piservices --save
+npm install pirest --save
 ```
 
 ## Usage Example
