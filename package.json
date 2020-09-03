@@ -1,20 +1,21 @@
 {
   "name": "@pomgui/rest",
-  "version": "0.1.0",
+  "version": "0.1.0-beta.0",
   "description": "Library to implement REST services in typescript using decorators",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "prepare": "tsc",
-    "test": "tsc && istanbul cover -- jasmine --config=spec/support/jasmine.json"
+    "test": "tsc && istanbul cover -- jasmine --config=spec/support/jasmine.json",
+    "postversion": "git push && git push --tags"
   },
   "bin": {},
   "keywords": [],
   "author": "Wilfredo <wpomier@pomgui.com> (https://github.com/pomgui)",
   "license": "MIT",
   "dependencies": {
-    "@pomgui/database": "github:pomgui/database",
-    "@pomgui/rest-lib": "github:pomgui/rest-lib"
+    "@pomgui/database": "^0.1.0-beta.0",
+    "@pomgui/rest-lib": "^0.1.0-beta.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.1",
@@ -33,9 +34,6 @@
   },
   "peerDependencies": {
     "express": "^4.17.1"
-  },
-  "publishConfig": {
-    "access": "restricted"
   },
   "repository": {
     "type": "git",
