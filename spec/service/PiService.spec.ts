@@ -2,10 +2,14 @@ import { PiTypeDescriptor, PiFieldDescriptor, PiField, PiJstype, PiDescriptor } 
 import { PiGET, PiPOST, PiPUT, PiPATCH, PiDELETE, PiService } from '../../lib/service/PiService';
 import * as express from 'express';
 import * as request from 'supertest';
-import { PiNoopDatabase } from '@pomgui/database';
+import { PiNoopDatabase, PiDatabasePool } from '@pomgui/database';
 
 class PiFakeDb extends PiNoopDatabase {
     close() { return Promise.reject('error on close database') };
+}
+
+class _NoopPool implements PiDatabasePool {
+    async get() { return new PiFakeDb() }
 }
 
 type integer = number;
@@ -52,8 +56,8 @@ class TestApi2 {
 
 var app = express();
 app.use(express.json());
-app.use('/nodb', PiService({ services: [TestApi1], dbFactoryFn: () => null }));
-app.use('/fakedb', PiService({ services: [TestApi2], dbFactoryFn: () => new PiFakeDb() }));
+app.use('/nodb', PiService({ services: [TestApi1], dbPoolFactoryFn: () => null }));
+app.use('/fakedb', PiService({ services: [TestApi2], dbPoolFactoryFn: () => new _NoopPool() }));
 var st = request(app);
 
 describe('PiService Without database ', () => {

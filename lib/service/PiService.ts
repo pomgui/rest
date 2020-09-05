@@ -1,10 +1,11 @@
 import { Request, Response, Router, IRouterMatcher, Application } from "express";
-import { PiDbFactoryFn, PiServiceOptions, PiExceptionHandlerParams, PiExtraParams } from "./types";
+import { PiDbPoolFactoryFn, PiServiceOptions, PiExceptionHandlerParams } from "./types";
 import { PiTypeDescriptor } from '@pomgui/rest-lib';
+import { PiDatabasePool, PiDatabase } from '@pomgui/database';
 
 var
     _router: Router = Router(),
-    _dbFactoryFn: PiDbFactoryFn;
+    _dbPool: PiDatabasePool | null;
 
 export function PiGET(path: string, options?: PiServiceOptions) { return decorator(path, _router.get, options) }
 export function PiPOST(path: string, options?: PiServiceOptions) { return decorator(path, _router.post, options) }
@@ -16,19 +17,26 @@ function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: Pi
     options = Object.assign({ database: true, errorHandler: defaultErrorHandler }, options);
     return function (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
         let orig = descriptor.value;
-        let operation = (req: Request, res: Response): Promise<any> => {
-            let db = (_dbFactoryFn && options!.database) ? _dbFactoryFn() : null;
-            let result: any;
-            let desc = options!.descriptor && (options!.descriptor.o || (options!.descriptor.o = new PiTypeDescriptor(options!.descriptor)));
-            return Promise.resolve()
-                .then(() => db && db.beginTransaction())
-                .then(() => orig.call(target, normalizeQueryParams(req, desc), { db, req, res }))
-                .then(r => result = r)
-                .then(() => db && db.commit())
-                .then(() => options!.customSend || res.send(result))
-                .catch(error => options!.errorHandler!({ db, req, res, error }))
-                .finally(() => db && db.close())
-                .catch(error => options!.errorHandler!({ db: null, req, res, error }));
+        let operation = async (req: Request, res: Response): Promise<any> => {
+            const db: PiDatabase | null = (_dbPool && options!.database) ? await _dbPool.get() : null;
+            const desc = options!.descriptor && (options!.descriptor.o || (options!.descriptor.o = new PiTypeDescriptor(options!.descriptor)));
+
+            if (db) {
+                let result: any;
+                return Promise.resolve()
+                    .then(() => db.beginTransaction())
+                    .then(() => orig.call(target, normalizeQueryParams(req, desc), { db, req, res }))
+                    .then(r => result = r)
+                    .then(() => db.commit())
+                    .then(() => options!.customSend || res.send(result))
+                    .catch(error => options!.errorHandler!({ db, req, res, error }))
+                    .finally(() => db.close())
+                    .catch(error => options!.errorHandler!({ db: null, req, res, error }));
+            } else
+                return Promise.resolve()
+                    .then(() => orig.call(target, normalizeQueryParams(req, desc), { db, req, res }))
+                    .then(result => options!.customSend || res.send(result))
+                    .catch(error => options!.errorHandler!({ db: null, req, res, error }));
         };
         defineRoute.call(_router, path, operation as Application);
     }
@@ -60,17 +68,18 @@ function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: Pi
 
     function plain(err: any) {
         if (Array.isArray(err) || typeof err != 'object') return err;
-        let plainObj: any = {};
+        const plainObj: any = {};
         if (err.message)
             plainObj.message = err.message;
         if (err.data)
-            plainObj.data = err.data;
+            plainObj.data = plain(err.data);
         return plainObj;
     }
 }
 
-export function PiService(config: { services: { new(): any }[], dbFactoryFn: PiDbFactoryFn }): Router {
+export function PiService(config: { services: { new(): any }[], dbPoolFactoryFn?: PiDbPoolFactoryFn }): Router {
     config.services.forEach(s => new s()); // Create an instance, just to access to the decorators
-    _dbFactoryFn = config.dbFactoryFn;
+    if (config.dbPoolFactoryFn)
+        _dbPool = config.dbPoolFactoryFn();
     return _router;
 }

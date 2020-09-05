@@ -33,7 +33,8 @@
     "@types/mysql": "^2.15.15"
   },
   "peerDependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "@pomgui/rest-codegen": "^0.1.0-beta.0"
   },
   "repository": {
     "type": "git",
