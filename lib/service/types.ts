@@ -2,11 +2,6 @@ import { PiDatabase, PiDatabasePool } from "@pomgui/database"
 import { Request, Response } from "express"
 import { PiDescriptor } from '@pomgui/rest-lib'
 
-/**
- * Signature of the database factory function 
- */
-export type PiDbPoolFactoryFn = { (): PiDatabasePool | null; }
-
 export type PiServiceOptions = {
     customSend?: boolean;
     database?: boolean;

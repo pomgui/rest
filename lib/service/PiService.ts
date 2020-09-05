@@ -1,11 +1,11 @@
 import { Request, Response, Router, IRouterMatcher, Application } from "express";
-import { PiDbPoolFactoryFn, PiServiceOptions, PiExceptionHandlerParams } from "./types";
+import { PiServiceOptions, PiExceptionHandlerParams } from "./types";
 import { PiTypeDescriptor } from '@pomgui/rest-lib';
 import { PiDatabasePool, PiDatabase } from '@pomgui/database';
 
 var
     _router: Router = Router(),
-    _dbPool: PiDatabasePool | null;
+    _dbPool: PiDatabasePool | undefined;
 
 export function PiGET(path: string, options?: PiServiceOptions) { return decorator(path, _router.get, options) }
 export function PiPOST(path: string, options?: PiServiceOptions) { return decorator(path, _router.post, options) }
@@ -77,9 +77,8 @@ function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: Pi
     }
 }
 
-export function PiService(config: { services: { new(): any }[], dbPoolFactoryFn?: PiDbPoolFactoryFn }): Router {
-    config.services.forEach(s => new s()); // Create an instance, just to access to the decorators
-    if (config.dbPoolFactoryFn)
-        _dbPool = config.dbPoolFactoryFn();
+export function PiService(config: { servicesList: { new(): any }[], dbPool?: PiDatabasePool }): Router {
+    config.servicesList.forEach(s => new s()); // Create an instance, just to access to the decorators
+    _dbPool = config.dbPool;
     return _router;
 }
