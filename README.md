@@ -1,4 +1,4 @@
-# Pomguii Rest Services
+# Pomgui Rest Services
 
 @pomgui/rest is a typescript library that makes it easier to create a node REST server using 
 [decorators](https://www.typescriptlang.org/docs/handbook/decorators.html) to improve the 
@@ -33,7 +33,7 @@ npm install -g @pomgui/rest-codegen
     - "application/json"
     parameters:
     - name: "status"
-    in: "query"
+      in: "query"
     description: "Status values that need to be considered for filter"
     required: true
     type: "array"
@@ -60,9 +60,10 @@ npm install -g @pomgui/rest-codegen
 And executing the code generator
 
 ```bash
-restcodegen pets.yaml
+rest-codegen --config=codegen.conf.js
 ```
-Which generate `Pet`, `FindPetsByStatusParams`, and other code files.
+Which generate `Pet`, `FindPetsByStatusParams`, and other code files,
+including a skeleton 
 
 With them, the following code can be created:
 

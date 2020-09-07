@@ -25,7 +25,7 @@ function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: Pi
                 let result: any;
                 return Promise.resolve()
                     .then(() => db.beginTransaction())
-                    .then(() => orig.call(target, normalizeQueryParams(req, desc), { db, req, res }))
+                    .then(() => orig.call(target, normalizeQueryParams(req, desc), db, req, res))
                     .then(r => result = r)
                     .then(() => db.commit())
                     .then(() => options!.customSend || res.send(result))
@@ -34,7 +34,7 @@ function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: Pi
                     .catch(error => options!.errorHandler!({ db: null, req, res, error }));
             } else
                 return Promise.resolve()
-                    .then(() => orig.call(target, normalizeQueryParams(req, desc), { db, req, res }))
+                    .then(() => orig.call(target, normalizeQueryParams(req, desc), db, req, res))
                     .then(result => options!.customSend || res.send(result))
                     .catch(error => options!.errorHandler!({ db: null, req, res, error }));
         };
