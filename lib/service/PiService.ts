@@ -77,8 +77,8 @@ function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: Pi
     }
 }
 
-export function PiService(config: { servicesList: { new(): any }[], dbPool?: PiDatabasePool }): Router {
-    config.servicesList.forEach(s => new s()); // Create an instance, just to access to the decorators
+export function PiService(config: { services: { new(): any }[], dbPool?: PiDatabasePool }): Router {
+    config.services.forEach(s => new s()); // Create an instance, just to access to the decorators
     _dbPool = config.dbPool;
     return _router;
 }
