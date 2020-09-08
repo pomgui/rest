@@ -96,11 +96,11 @@ function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: Pi
 
     async function checkSecurityAnd(items: { [secname: string]: string[] }, req: Request): Promise<boolean> {
         const ANDlist = Object.entries(items)
-            .map(([secname, values]) => {
+            .map(([secname, scopes]) => {
                 const def = _security.definition[secname];
                 assert(def, `OpenApi spec: securityDefinitions does not define '${secname}'`);
-                const value = getSecItemValue(def, req);
-                const promiseLike = _security.validator(secname, value);
+                const requestValue = getSecItemValue(def, req);
+                const promiseLike = _security.validator(secname, scopes, requestValue);
                 return Promise.resolve(promiseLike);
             })
         const ANDresult = await Promise.all(ANDlist);

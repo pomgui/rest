@@ -37,11 +37,12 @@ export type PiSecurityValidator = {
     /**
      * Custom validator of the access token/basic auth.
      * @param name Name of the security definition on openapi spec.
-     * @param value Value to be validated. The content will depend on the type 
+     * @param scopes Security scope defined on each operation
+     * @param requestValue Value to be validated. The content will depend on the type 
      *              of the security definition for that name.
      *              type    value
      *              ----    -------
-     *              basic   Value sent in "Authorization" header
+     *              basic   base64-decoded value. It was sent in "Authorization" header.
      *              apiKey  Key sent in the header/query with the name defined in the spec.
      *              oauth2  Not supported.
      * @return true/false depending on the result of the validation.
@@ -50,7 +51,7 @@ export type PiSecurityValidator = {
      * necessary to get the final result.
      * @see https://swagger.io/docs/specification/2-0/authentication/
      */
-    (name: string, value: any): boolean | Promise<boolean>;
+    (name: string, scopes: string[], requestValue: any): boolean | Promise<boolean>;
 }
 
 export type PiSecurityDefItem = {
