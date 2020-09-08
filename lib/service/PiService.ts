@@ -1,11 +1,16 @@
 import { Request, Response, Router, IRouterMatcher, Application } from "express";
-import { PiServiceOptions, PiExceptionHandlerParams } from "./types";
-import { PiTypeDescriptor } from '@pomgui/rest-lib';
-import { PiDatabasePool, PiDatabase } from '@pomgui/database';
+import {
+    PiServiceOptions, PiExceptionHandlerParams,
+    PiSecurityDef, PiSecurityDefItem, PiSecurity
+} from "./types";
+import { PiTypeDescriptor, PiRestError } from '@pomgui/rest-lib';
+import { PiDatabasePool } from '@pomgui/database';
+import { assert } from 'console';
 
 var
     _router: Router = Router(),
-    _dbPool: PiDatabasePool | undefined;
+    _dbPool: PiDatabasePool | undefined,
+    _security: PiSecurityDef;
 
 export function PiGET(path: string, options?: PiServiceOptions) { return decorator(path, _router.get, options) }
 export function PiPOST(path: string, options?: PiServiceOptions) { return decorator(path, _router.post, options) }
@@ -14,29 +19,32 @@ export function PiPATCH(path: string, options?: PiServiceOptions) { return decor
 export function PiDELETE(path: string, options?: PiServiceOptions) { return decorator(path, _router.delete, options) }
 
 function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: PiServiceOptions) {
-    options = Object.assign({ database: true, errorHandler: defaultErrorHandler }, options);
+    const opts = Object.assign({ database: true, errorHandler: defaultErrorHandler }, options);
     return function (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
-        let orig = descriptor.value;
-        let operation = async (req: Request, res: Response): Promise<any> => {
-            const db: PiDatabase | null = (_dbPool && options!.database) ? await _dbPool.get() : null;
-            const desc = options!.descriptor && (options!.descriptor.o || (options!.descriptor.o = new PiTypeDescriptor(options!.descriptor)));
+        const orig = descriptor.value;
+
+        /** Real operation */
+        const operation = async (req: Request, res: Response): Promise<any> => {
+            const db = (_dbPool && !opts.noDb) ? await _dbPool.get() : null;
+            const desc = opts.descriptor && (opts.descriptor.o || (opts.descriptor.o = new PiTypeDescriptor(opts.descriptor)));
+            const security = opts.security ? checkSecurity(opts.security, req) : Promise.resolve(true);
 
             if (db) {
                 let result: any;
-                return Promise.resolve()
+                return security
                     .then(() => db.beginTransaction())
                     .then(() => orig.call(target, normalizeQueryParams(req, desc), db, req, res))
                     .then(r => result = r)
                     .then(() => db.commit())
-                    .then(() => options!.customSend || res.send(result))
-                    .catch(error => options!.errorHandler!({ db, req, res, error }))
+                    .then(() => opts.customSend || res.send(result))
+                    .catch(error => opts.errorHandler!({ db, req, res, error }))
                     .finally(() => db.close())
-                    .catch(error => options!.errorHandler!({ db: null, req, res, error }));
+                    .catch(error => opts.errorHandler!({ db: null, req, res, error }));
             } else
-                return Promise.resolve()
+                return security
                     .then(() => orig.call(target, normalizeQueryParams(req, desc), req, res))
-                    .then(result => options!.customSend || res.send(result))
-                    .catch(error => options!.errorHandler!({ db: null, req, res, error }));
+                    .then(result => opts.customSend || res.send(result))
+                    .catch(error => opts.errorHandler!({ db: null, req, res, error }));
         };
         defineRoute.call(_router, path, operation as Application);
     }
@@ -75,10 +83,46 @@ function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: Pi
             plainObj.data = plain(err.data);
         return plainObj;
     }
+
+    async function checkSecurity(security: PiSecurity | PiSecurity[], req: Request): Promise<boolean> {
+        security = Array.isArray(security) ? security : [security];
+        const ORlist = security.map(sec => checkSecurityAnd(sec, req));
+        const ORresult = await Promise.all(ORlist);
+        const accessGranted = ORresult.some(b => b);
+        if (!accessGranted)
+            throw new PiRestError('Unauthorized', 403);
+        return accessGranted;
+    }
+
+    async function checkSecurityAnd(items: { [secname: string]: string[] }, req: Request): Promise<boolean> {
+        const ANDlist = Object.entries(items)
+            .map(([secname, values]) => {
+                const def = _security.definition[secname];
+                assert(def, `OpenApi spec: securityDefinitions does not define '${secname}'`);
+                const value = getSecItemValue(def, req);
+                const promiseLike = _security.validator(secname, value);
+                return Promise.resolve(promiseLike);
+            })
+        const ANDresult = await Promise.all(ANDlist);
+        return !ANDresult.some(b => !b);
+    }
+
+    function getSecItemValue(def: PiSecurityDefItem, req: Request): string | string[] | undefined {
+        if (def.in == 'header')
+            return req.headers[def.name.toLowerCase()];
+        if (def.in == 'query')
+            return req.query[def.name] as any;
+        return undefined;
+    }
 }
 
-export function PiService(config: { services: { new(): any }[], dbPool?: PiDatabasePool }): Router {
+export function PiService(config: {
+    services: { new(): any }[],
+    dbPool?: PiDatabasePool,
+    security?: PiSecurityDef
+}): Router {
     config.services.forEach(s => new s()); // Create an instance, just to access to the decorators
+    if (config.security) _security = config.security;
     _dbPool = config.dbPool;
     return _router;
 }
