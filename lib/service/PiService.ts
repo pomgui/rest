@@ -108,10 +108,18 @@ function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: Pi
     }
 
     function getSecItemValue(def: PiSecurityDefItem, req: Request): string | string[] | undefined {
-        if (def.in == 'header')
-            return req.headers[def.name.toLowerCase()];
-        if (def.in == 'query')
-            return req.query[def.name] as any;
+        if (def.type == 'basic') {
+            const value = req.headers.authorization;
+            if (value) {
+                const decoded = new Buffer(value, 'base64');
+                return decoded.toString('utf8');
+            }
+        } else {
+            if (def.in == 'header')
+                return req.headers[def.name.toLowerCase()];
+            if (def.in == 'query')
+                return req.query[def.name] as any;
+        }
         return undefined;
     }
 }
