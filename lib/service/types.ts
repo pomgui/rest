@@ -9,7 +9,6 @@ export type PiSecurity = {
 export type PiServiceOptions = {
     customSend?: boolean;
     noDb?: boolean; // Don't use database for this operation
-    descriptor?: PiDescriptor,
     errorHandler?: PiExceptionHandler;
 
     /** see https://swagger.io/docs/specification/2-0/authentication/ */

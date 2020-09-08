@@ -3,14 +3,15 @@ import {
     PiServiceOptions, PiExceptionHandlerParams,
     PiSecurityDef, PiSecurityDefItem, PiSecurity
 } from "./types";
-import { PiTypeDescriptor, PiRestError } from '@pomgui/rest-lib';
+import { PiTypeDescriptor, PiRestError, PiDescriptor } from '@pomgui/rest-lib';
 import { PiDatabasePool } from '@pomgui/database';
 import { assert } from 'console';
 
 var
     _router: Router = Router(),
     _dbPool: PiDatabasePool | undefined,
-    _security: PiSecurityDef;
+    _security: PiSecurityDef,
+    _descriptors = new Map<string, PiTypeDescriptor>();
 
 export function PiGET(path: string, options?: PiServiceOptions) { return decorator(path, _router.get, options) }
 export function PiPOST(path: string, options?: PiServiceOptions) { return decorator(path, _router.post, options) }
@@ -20,20 +21,20 @@ export function PiDELETE(path: string, options?: PiServiceOptions) { return deco
 
 function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: PiServiceOptions) {
     const opts = Object.assign({ database: true, errorHandler: defaultErrorHandler }, options);
-    return function (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
-        const orig = descriptor.value;
+    return function (target: any, propertyKey: string | symbol, propDescriptor: PropertyDescriptor) {
+        const orig = propDescriptor.value;
+        const descriptor = _descriptors.get(orig.name);
 
         /** Real operation */
         const operation = async (req: Request, res: Response): Promise<any> => {
             const db = (_dbPool && !opts.noDb) ? await _dbPool.get() : null;
-            const desc = opts.descriptor && (opts.descriptor.o || (opts.descriptor.o = new PiTypeDescriptor(opts.descriptor)));
             const security = opts.security ? checkSecurity(opts.security, req) : Promise.resolve(true);
 
             if (db) {
                 let result: any;
                 return security
                     .then(() => db.beginTransaction())
-                    .then(() => orig.call(target, normalizeQueryParams(req, desc), db, req, res))
+                    .then(() => orig.call(target, normalizeQueryParams(req, descriptor), db, req, res))
                     .then(r => result = r)
                     .then(() => db.commit())
                     .then(() => opts.customSend || res.send(result))
@@ -42,7 +43,7 @@ function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: Pi
                     .catch(error => opts.errorHandler!({ db: null, req, res, error }));
             } else
                 return security
-                    .then(() => orig.call(target, normalizeQueryParams(req, desc), req, res))
+                    .then(() => orig.call(target, normalizeQueryParams(req, descriptor), req, res))
                     .then(result => opts.customSend || res.send(result))
                     .catch(error => opts.errorHandler!({ db: null, req, res, error }));
         };
@@ -126,11 +127,15 @@ function decorator(path: string, defineRoute: IRouterMatcher<void>, options?: Pi
 
 export function PiService(config: {
     services: { new(): any }[],
+    descriptors?: { [name: string]: PiDescriptor },
     dbPool?: PiDatabasePool,
     security?: PiSecurityDef
 }): Router {
     config.services.forEach(s => new s()); // Create an instance, just to access to the decorators
     if (config.security) _security = config.security;
     _dbPool = config.dbPool;
+    if (config.descriptors)
+        Object.entries(config.descriptors)
+            .forEach(([name, value]) => _descriptors.set(name, new PiTypeDescriptor(name, value)));
     return _router;
 }
